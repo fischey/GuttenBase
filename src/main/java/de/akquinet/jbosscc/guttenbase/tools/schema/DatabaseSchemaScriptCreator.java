@@ -178,11 +178,11 @@ public class DatabaseSchemaScriptCreator
     final String schemaPrefix = "".equals(_targetSchema) ? "" : _targetSchema + ".";
     final String unique = indexMetaData.isUnique() ? " UNIQUE " : " ";
 
+    final String indexname = _caseConversionMode.convert(indexMetaData.getIndexName()) + "_"
+        + _caseConversionMode.convert(tableMetaData.getTableName());
     final StringBuilder builder = new StringBuilder("CREATE" + unique
         + "INDEX "
-        + _caseConversionMode.convert(indexMetaData.getIndexName())
-        + "_"
-        + _caseConversionMode.convert(tableMetaData.getTableName())
+        + (indexname.length() > 55 ? indexname.substring(0, 55) : indexname)
         + "_"
         + counter
         + " ON "
