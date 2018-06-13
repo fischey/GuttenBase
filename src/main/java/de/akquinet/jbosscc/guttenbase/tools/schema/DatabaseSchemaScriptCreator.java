@@ -333,4 +333,12 @@ public class DatabaseSchemaScriptCreator
 
     return prefix + name + uniqueId;
   }
+
+  public String createTableColumn(final ColumnMetaData columnMetaData)
+  {
+    return "ALTER TABLE " + _targetSchema + "."
+        + columnMetaData.getTableMetaData().getTableName()
+        + " ADD COLUMN " + columnMetaData.getColumnName() + " "
+        + columnMetaData.getColumnTypeName();
+  }
 }

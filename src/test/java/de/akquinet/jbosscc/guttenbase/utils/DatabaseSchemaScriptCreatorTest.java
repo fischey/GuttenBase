@@ -123,6 +123,14 @@ public class DatabaseSchemaScriptCreatorTest {
   }
 
   @Test
+  public void createColumn()
+  {
+    final String sql = _objectUnderTest.createTableColumn(_databaseMetaData.getTableMetaData().get(0).getColumnMetaData().get(1));
+
+    assertEquals("ALTER TABLE schemaName.My_Table1 ADD COLUMN Name VARCHAR(100)",sql);
+  }
+
+  @Test
   public void testIndex() throws Exception {
     final ColumnMetaData columnMetaData = _databaseMetaData.getTableMetaData().get(0).getColumnMetaData("name");
     final IndexMetaData index = _databaseMetaData.getTableMetaData().get(0).getIndexesForColumn(columnMetaData).get(0);
