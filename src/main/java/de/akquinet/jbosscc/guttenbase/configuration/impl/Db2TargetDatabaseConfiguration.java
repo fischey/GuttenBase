@@ -1,12 +1,10 @@
 package de.akquinet.jbosscc.guttenbase.configuration.impl;
 
-import de.akquinet.jbosscc.guttenbase.hints.TableNameMapperHint;
 import de.akquinet.jbosscc.guttenbase.hints.TableOrderHint;
 import de.akquinet.jbosscc.guttenbase.meta.DatabaseMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
 import de.akquinet.jbosscc.guttenbase.repository.ConnectorRepository;
 import de.akquinet.jbosscc.guttenbase.tools.ScriptExecutorTool;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,14 +17,13 @@ import java.util.Map.Entry;
  * Implementation for IBM DB2 data base.
  *
  * @author M. Dahm
- * @Uses-Hint {@link TableNameMapperHint}
- * @see http://stackoverflow.com/questions/421518/is-there-a-way-to-enable-disable-constraints-in-db2-v7
+ * @see <a href="http://stackoverflow.com/questions/421518/is-there-a-way-to-enable-disable-constraints-in-db2-v7">http://stackoverflow.com/questions/421518/is-there-a-way-to-enable-disable-constraints-in-db2-v7</a>
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
  */
 public class Db2TargetDatabaseConfiguration extends DefaultTargetDatabaseConfiguration {
-  private final Map<String, List<String>> _constraintsOfTable = new LinkedHashMap<String, List<String>>();
+  private final Map<String, List<String>> _constraintsOfTable = new LinkedHashMap<>();
   private String _schema;
 
   public Db2TargetDatabaseConfiguration(final ConnectorRepository connectorRepository) {
@@ -70,7 +67,7 @@ public class Db2TargetDatabaseConfiguration extends DefaultTargetDatabaseConfigu
     _constraintsOfTable.clear();
 
     for (final TableMetaData tableMetaData : tableMetaDatas) {
-      _constraintsOfTable.put(tableMetaData.getTableName().toUpperCase(), new ArrayList<String>());
+      _constraintsOfTable.put(tableMetaData.getTableName().toUpperCase(), new ArrayList<>());
     }
 
     loadConstraints(connection);

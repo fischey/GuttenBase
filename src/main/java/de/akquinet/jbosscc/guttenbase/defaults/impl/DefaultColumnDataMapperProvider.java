@@ -1,16 +1,15 @@
 package de.akquinet.jbosscc.guttenbase.defaults.impl;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import de.akquinet.jbosscc.guttenbase.hints.impl.DefaultColumnDataMapperProviderHint;
 import de.akquinet.jbosscc.guttenbase.mapping.ColumnDataMapper;
 import de.akquinet.jbosscc.guttenbase.mapping.ColumnDataMapperProvider;
 import de.akquinet.jbosscc.guttenbase.meta.ColumnMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.ColumnType;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Default implementation. To add further mapping you should simply extend {@link DefaultColumnDataMapperProviderHint} and call
@@ -19,12 +18,12 @@ import de.akquinet.jbosscc.guttenbase.meta.ColumnType;
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
- * 
+ *
  * @author M. Dahm
  */
 public class DefaultColumnDataMapperProvider implements ColumnDataMapperProvider
 {
-  private final Map<String, List<ColumnDataMapper>> _mappings = new HashMap<String, List<ColumnDataMapper>>();
+  private final Map<String, List<ColumnDataMapper>> _mappings = new HashMap<>();
 
   /**
    * {@inheritDoc}
@@ -69,14 +68,7 @@ public class DefaultColumnDataMapperProvider implements ColumnDataMapperProvider
   private List<ColumnDataMapper> findMapping(final ColumnType sourceColumnType, final ColumnType targetColumnType)
   {
     final String key = createKey(sourceColumnType, targetColumnType);
-    List<ColumnDataMapper> result = _mappings.get(key);
 
-    if (result == null)
-    {
-      result = new ArrayList<ColumnDataMapper>();
-      _mappings.put(key, result);
-    }
-
-    return result;
+    return _mappings.computeIfAbsent(key, k -> new ArrayList<>());
   }
 }

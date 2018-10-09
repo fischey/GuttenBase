@@ -11,14 +11,21 @@ import de.akquinet.jbosscc.guttenbase.export.ImportDumpDatabaseConfiguration;
 import de.akquinet.jbosscc.guttenbase.hints.ConnectorHint;
 import de.akquinet.jbosscc.guttenbase.hints.RepositoryTableFilterHint;
 import de.akquinet.jbosscc.guttenbase.hints.impl.*;
-import de.akquinet.jbosscc.guttenbase.meta.*;
+import de.akquinet.jbosscc.guttenbase.meta.ColumnMetaData;
+import de.akquinet.jbosscc.guttenbase.meta.DatabaseMetaData;
+import de.akquinet.jbosscc.guttenbase.meta.InternalDatabaseMetaData;
+import de.akquinet.jbosscc.guttenbase.meta.InternalTableMetaData;
+import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
 import de.akquinet.jbosscc.guttenbase.repository.ConnectorRepository;
 import de.akquinet.jbosscc.guttenbase.repository.RepositoryColumnFilter;
 import de.akquinet.jbosscc.guttenbase.repository.RepositoryTableFilter;
 import de.akquinet.jbosscc.guttenbase.utils.Util;
-
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * The main repository containing all configured connectors.
@@ -27,20 +34,20 @@ import java.util.*;
  * </p>
  *
  * @author M. Dahm
- * @Uses-Hint {@link RepositoryTableFilterHint} when returning table meta data
+ * Hint is used by {@link RepositoryTableFilterHint} when returning table meta data
  */
 public class ConnectorRepositoryImpl implements ConnectorRepository {
   private static final long serialVersionUID = 1L;
 
-  private final Map<String, ConnectorInfo> _connectionInfoMap = new TreeMap<String, ConnectorInfo>();
-  private final Map<DatabaseType, SourceDatabaseConfiguration> _sourceDatabaseConfigurationMap = new HashMap<DatabaseType, SourceDatabaseConfiguration>();
-  private final Map<DatabaseType, TargetDatabaseConfiguration> _targetDatabaseConfigurationMap = new HashMap<DatabaseType, TargetDatabaseConfiguration>();
+  private final Map<String, ConnectorInfo> _connectionInfoMap = new TreeMap<>();
+  private final Map<DatabaseType, SourceDatabaseConfiguration> _sourceDatabaseConfigurationMap = new HashMap<>();
+  private final Map<DatabaseType, TargetDatabaseConfiguration> _targetDatabaseConfigurationMap = new HashMap<>();
 
   /**
    * Hash meta data since some data base are very slow on retrieving it.
    */
-  private final Map<String, DatabaseMetaData> _databaseMetaDataMap = new HashMap<String, DatabaseMetaData>();
-  private final Map<String, Map<Class<?>, ConnectorHint<?>>> _connectionHintMap = new HashMap<String, Map<Class<?>, ConnectorHint<?>>>();
+  private final Map<String, DatabaseMetaData> _databaseMetaDataMap = new HashMap<>();
+  private final Map<String, Map<Class<?>, ConnectorHint<?>>> _connectionHintMap = new HashMap<>();
 
   public ConnectorRepositoryImpl() {
     initDefaultConfiguration();
@@ -81,12 +88,7 @@ public class ConnectorRepositoryImpl implements ConnectorRepository {
     // Check connector if is configured
     getConnectionInfo(connectorId);
 
-    Map<Class<?>, ConnectorHint<?>> hintMap = _connectionHintMap.get(connectorId);
-
-    if (hintMap == null) {
-      hintMap = new HashMap<Class<?>, ConnectorHint<?>>();
-      _connectionHintMap.put(connectorId, hintMap);
-    }
+    Map<Class<?>, ConnectorHint<?>> hintMap = _connectionHintMap.computeIfAbsent(connectorId, k -> new HashMap<>());
 
     hintMap.put(hint.getConnectorHintType(), hint);
   }
@@ -244,13 +246,13 @@ public class ConnectorRepositoryImpl implements ConnectorRepository {
    */
   @Override
   public List<String> getConnectorIds() {
-    return new ArrayList<String>(_connectionInfoMap.keySet());
+    return new ArrayList<>(_connectionInfoMap.keySet());
   }
 
   private DatabaseMetaData createResultWithFilteredTables(final String connectorId, final DatabaseMetaData databaseMetaData)
-          throws SQLException {
+    throws SQLException {
     final InternalDatabaseMetaData resultDatabaseMetaData = Util.copyObject(InternalDatabaseMetaData.class,
-            (InternalDatabaseMetaData) databaseMetaData);
+      (InternalDatabaseMetaData) databaseMetaData);
     final RepositoryTableFilter tableFilter = getConnectorHint(connectorId, RepositoryTableFilter.class).getValue();
     final RepositoryColumnFilter columnFilter = getConnectorHint(connectorId, RepositoryColumnFilter.class).getValue();
 
@@ -261,7 +263,6 @@ public class ConnectorRepositoryImpl implements ConnectorRepository {
             ((InternalTableMetaData) tableMetaData).removeColumn(columnMetaData);
           }
         }
-
       } else {
         resultDatabaseMetaData.removeTableMetaData(tableMetaData);
       }
@@ -310,9 +311,7 @@ public class ConnectorRepositoryImpl implements ConnectorRepository {
     addConnectorHint(connectorId, new DefaultMaxNumberOfDataItemsHint());
     addConnectorHint(connectorId, new DefaultSplitColumnHint());
     addConnectorHint(connectorId, new DefaultColumnTypeResolverListHint());
-    addConnectorHint(connectorId, new DefaultColumnNameMapperHint());
     addConnectorHint(connectorId, new DefaultEntityTableCheckerHint());
-    addConnectorHint(connectorId, new DefaultTableNameMapperHint());
     addConnectorHint(connectorId, new DefaultExporterFactoryHint());
     addConnectorHint(connectorId, new DefaultImporterFactoryHint());
     addConnectorHint(connectorId, new DefaultZipExporterClassResourcesHint());
@@ -327,5 +326,8 @@ public class ConnectorRepositoryImpl implements ConnectorRepository {
     addConnectorHint(connectorId, new DefaultTableCopyProgressIndicatorHint());
     addConnectorHint(connectorId, new DefaultScriptExecutorProgressIndicatorHint());
     addConnectorHint(connectorId, new DefaultRefreshTargetConnectionHint());
+    addConnectorHint(connectorId, new DefaultColumnTypeMapperHint());
+    addConnectorHint(connectorId, new DefaultSelectWhereClauseHint());
+    addConnectorHint(connectorId, new DefaultTableRowCountFilterHint());
   }
 }

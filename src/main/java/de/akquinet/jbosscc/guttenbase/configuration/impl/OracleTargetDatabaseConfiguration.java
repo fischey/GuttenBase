@@ -1,26 +1,22 @@
 package de.akquinet.jbosscc.guttenbase.configuration.impl;
 
+import de.akquinet.jbosscc.guttenbase.hints.TableOrderHint;
+import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
+import de.akquinet.jbosscc.guttenbase.repository.ConnectorRepository;
+import de.akquinet.jbosscc.guttenbase.tools.ScriptExecutorTool;
+import org.apache.log4j.Logger;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
-import de.akquinet.jbosscc.guttenbase.hints.TableNameMapperHint;
-import de.akquinet.jbosscc.guttenbase.hints.TableOrderHint;
-import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
-import de.akquinet.jbosscc.guttenbase.repository.ConnectorRepository;
-import de.akquinet.jbosscc.guttenbase.tools.ScriptExecutorTool;
-
 /**
  * Implementation for Oracle data base.
- * 
+ *
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
- * 
- * @Uses-Hint {@link TableNameMapperHint}
+ *
  * @author M. Dahm
  */
 public class OracleTargetDatabaseConfiguration extends DefaultTargetDatabaseConfiguration {
@@ -83,7 +79,7 @@ public class OracleTargetDatabaseConfiguration extends DefaultTargetDatabaseConf
           executeSQL(connection, sql);
         } catch (final SQLException e) {
           LOG.error("Unable to handle constraint: " + sql, e);
-          problems.append("Unable to handle constraint: " + sql + "->" + e.getMessage() + ":" + e.getSQLState());
+          problems.append("Unable to handle constraint: ").append(sql).append("->").append(e.getMessage()).append(":").append(e.getSQLState());
         }
       }
 
@@ -99,7 +95,7 @@ public class OracleTargetDatabaseConfiguration extends DefaultTargetDatabaseConf
     final StringBuilder tablesBuilder = new StringBuilder();
 
     for (final TableMetaData tableMetaData : tableMetaDatas) {
-      tablesBuilder.append("'" + tableMetaData.getTableName() + "'" + ", ");
+      tablesBuilder.append("'").append(tableMetaData.getTableName()).append("'").append(", ");
     }
 
     if (tablesBuilder.length() > 2) {

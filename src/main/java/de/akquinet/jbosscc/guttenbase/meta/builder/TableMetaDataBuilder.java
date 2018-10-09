@@ -1,26 +1,25 @@
 package de.akquinet.jbosscc.guttenbase.meta.builder;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import de.akquinet.jbosscc.guttenbase.meta.InternalTableMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.impl.TableMetaDataImpl;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Builder class for TableMetaData.
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
- * 
+ *
  * @author M. Dahm
  */
 public class TableMetaDataBuilder
 {
   private String _tableName = "FOO";
-  private final List<ColumnMetaDataBuilder> _columns = new ArrayList<ColumnMetaDataBuilder>();
-  private final List<IndexMetaDataBuilder> _indexes = new ArrayList<IndexMetaDataBuilder>();
-  private final List<ForeignKeyMetaDataBuilder> _exportedforeignKeys = new ArrayList<ForeignKeyMetaDataBuilder>();
-  private final List<ForeignKeyMetaDataBuilder> _importedforeignKeys = new ArrayList<ForeignKeyMetaDataBuilder>();
+  private final List<ColumnMetaDataBuilder> _columns = new ArrayList<>();
+  private final List<IndexMetaDataBuilder> _indexes = new ArrayList<>();
+  private final List<ForeignKeyMetaDataBuilder> _exportedforeignKeys = new ArrayList<>();
+  private final List<ForeignKeyMetaDataBuilder> _importedforeignKeys = new ArrayList<>();
   private final DatabaseMetaDataBuilder _databaseMetaDataBuilder;
   private TableMetaDataImpl _result;
 
@@ -34,7 +33,7 @@ public class TableMetaDataBuilder
   {
     if (_result == null)
     {
-      _result = new TableMetaDataImpl(_tableName, _databaseMetaDataBuilder.build());
+      _result = new TableMetaDataImpl(_tableName, _databaseMetaDataBuilder.build(), "TABLE");
 
       for (final ColumnMetaDataBuilder columnBuilder : _columns)
       {

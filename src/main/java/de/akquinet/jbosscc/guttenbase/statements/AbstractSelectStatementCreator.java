@@ -6,7 +6,7 @@ import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
 import de.akquinet.jbosscc.guttenbase.repository.ConnectorRepository;
 import de.akquinet.jbosscc.guttenbase.tools.CheckEqualTableDataTool;
 import de.akquinet.jbosscc.guttenbase.tools.ResultSetParameters;
-
+import de.akquinet.jbosscc.guttenbase.tools.SelectWhereClause;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * Create SELECT statement for copying data.
- * <p/>
+ * <p></p>
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
@@ -45,6 +45,11 @@ public abstract class AbstractSelectStatementCreator extends AbstractStatementCr
     return preparedStatement;
   }
 
+  protected String createWhereClause(final TableMetaData tableMetaData) throws SQLException {
+    final SelectWhereClause selectWhereClause = _connectorRepository.getConnectorHint(_connectorId, SelectWhereClause.class).getValue();
+    return selectWhereClause.getWhereClause(tableMetaData);
+  }
+
   /**
    * Create SELECT statement in the target table to retrieve data from the mapped columns. I.e., since the target table
    * configuration may be different, the SELECT statement may be different. This is needed to check data compatibility with the
@@ -66,15 +71,11 @@ public abstract class AbstractSelectStatementCreator extends AbstractStatementCr
   }
 
   private String createSQL(final String tableName, final TableMetaData tableMetaData, final List<ColumnMetaData> columns)
-          throws SQLException {
-    final StringBuilder buf = new StringBuilder("SELECT ");
+    throws SQLException {
 
-    buf.append(createColumnClause(columns));
-    buf.append(FROM + tableName);
-
-    buf.append(" " + createWhereClause(tableMetaData));
-    buf.append(" " + createOrderBy(tableMetaData));
-
-    return buf.toString();
+    return "SELECT " + createColumnClause(columns) +
+      FROM + tableName +
+      " " + createWhereClause(tableMetaData) +
+      " " + createOrderBy(tableMetaData);
   }
 }

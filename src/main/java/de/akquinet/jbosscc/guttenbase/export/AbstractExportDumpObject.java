@@ -16,7 +16,7 @@ import java.sql.SQLException;
  * Since CLOBs/BLOBs may be quite big. we do not load them into memory
  * completely, but read them in chunks and write the data to the output stream
  * in a loop.
- * <p/>
+*
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
@@ -91,7 +91,7 @@ public abstract class AbstractExportDumpObject implements Externalizable
     fileOutputStream.close();
   }
 
-  public long length() throws SQLException
+  public long length()
   {
     return _tempFile.length();
   }
@@ -132,7 +132,7 @@ public abstract class AbstractExportDumpObject implements Externalizable
     }
   }
 
-  public final void free() throws SQLException
+  public final void free()
   {
     if (_tempFile != null && _tempFile.exists())
     {

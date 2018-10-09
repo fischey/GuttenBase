@@ -1,8 +1,5 @@
 package de.akquinet.jbosscc.guttenbase.export;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import de.akquinet.jbosscc.guttenbase.connector.impl.AbstractConnector;
 import de.akquinet.jbosscc.guttenbase.exceptions.ExportException;
 import de.akquinet.jbosscc.guttenbase.hints.ExporterFactoryHint;
@@ -11,15 +8,17 @@ import de.akquinet.jbosscc.guttenbase.meta.InternalTableMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
 import de.akquinet.jbosscc.guttenbase.repository.ConnectorRepository;
 import de.akquinet.jbosscc.guttenbase.utils.Util;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Connection info for exporting data base contents to a file.
- * 
+ *
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
- * 
- * @Uses-Hint {@link ExporterFactoryHint} to determine exporter implementation
+ *
+ * Hint is used by {@link ExporterFactoryHint} to determine exporter implementation
  * @author M. Dahm
  */
 public class ExportDumpConnector extends AbstractConnector {
@@ -55,7 +54,7 @@ public class ExportDumpConnector extends AbstractConnector {
   /**
    * Table meta data is the same as the meta data of the source connector. The only difference is that the row count of all tables is reset
    * to 0.
-   * 
+   *
    * {@inheritDoc}
    */
   @Override
@@ -64,7 +63,7 @@ public class ExportDumpConnector extends AbstractConnector {
     final DatabaseMetaData result = Util.copyObject(DatabaseMetaData.class, data);
 
     for (final TableMetaData tableMetaData : result.getTableMetaData()) {
-      ((InternalTableMetaData) tableMetaData).setRowCount(0);
+      ((InternalTableMetaData) tableMetaData).setTotalRowCount(0);
     }
 
     return result;

@@ -7,7 +7,7 @@ import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
 
 /**
  * Information about a foreign key between table columns.
- * <p/>
+ *
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
@@ -25,7 +25,7 @@ public class ForeignKeyMetaDataImpl implements InternalForeignKeyMetaData {
   public ForeignKeyMetaDataImpl(final TableMetaData tableMetaData, final String foreignKeyName, final ColumnMetaData referencingColumn,
                                 final ColumnMetaData referencedColumn) {
     assert tableMetaData != null : "tableMetaData != null";
-    assert referencedColumn != null : "referencedColumn != null";
+    assert foreignKeyName != null : "foreignKeyName != null";
     assert referencingColumn != null : "referencingColumn != null";
     assert referencedColumn != null : "referencedColumn != null";
 

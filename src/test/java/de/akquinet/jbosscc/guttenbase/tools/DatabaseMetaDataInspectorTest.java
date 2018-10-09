@@ -1,21 +1,19 @@
 package de.akquinet.jbosscc.guttenbase.tools;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import de.akquinet.jbosscc.guttenbase.configuration.TestDerbyConnectionInfo;
 import de.akquinet.jbosscc.guttenbase.meta.ColumnMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.DatabaseMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.IndexMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
+import org.junit.Before;
+import org.junit.Test;
+import java.util.List;
+
+import static java.util.Collections.singletonList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class DatabaseMetaDataInspectorTest extends AbstractGuttenBaseTest {
 	private static final String CONNECTOR_ID = "derby";
@@ -31,7 +29,8 @@ public class DatabaseMetaDataInspectorTest extends AbstractGuttenBaseTest {
 	public void testMetaData() throws Exception {
 		final DatabaseMetaData databaseMetaData = _connectorRepository.getDatabaseMetaData(CONNECTOR_ID);
 		assertNotNull(databaseMetaData);
-		assertEquals("Apache Derby", databaseMetaData.getDatabaseName());
+		assertEquals("Apache Derby", databaseMetaData.getDatabaseMetaData().getDatabaseProductName());
+		assertEquals(128, databaseMetaData.getDatabaseMetaData().getMaxColumnNameLength());
 
 		assertEquals(6, databaseMetaData.getTableMetaData().size());
 		final TableMetaData userTableMetaData = databaseMetaData.getTableMetaData("FOO_USER");
@@ -66,7 +65,7 @@ public class DatabaseMetaDataInspectorTest extends AbstractGuttenBaseTest {
 		assertEquals("BIGINT", idColumn.getColumnTypeName());
 		assertTrue(idColumn.isPrimaryKey());
 		assertFalse(idColumn.isNullable());
-		assertEquals(Arrays.asList(idColumn), userTableMetaData.getPrimaryKeyColumns());
+		assertEquals(singletonList(idColumn), userTableMetaData.getPrimaryKeyColumns());
 		return idColumn;
 	}
 
@@ -80,7 +79,7 @@ public class DatabaseMetaDataInspectorTest extends AbstractGuttenBaseTest {
 		final ColumnMetaData indexedColumn = indexMetaData.getColumnMetaData().get(0);
 		assertEquals("USERNAME", indexedColumn.getColumnName());
 
-		final List<IndexMetaData> indexesForColumn = userTableMetaData.getIndexesForColumn(indexedColumn);
-		assertEquals(Arrays.asList(indexMetaData), indexesForColumn);
+		final List<IndexMetaData> indexesForColumn = userTableMetaData.getIndexesContainingColumn(indexedColumn);
+		assertEquals(singletonList(indexMetaData), indexesForColumn);
 	}
 }

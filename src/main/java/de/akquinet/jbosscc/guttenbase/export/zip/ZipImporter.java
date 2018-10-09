@@ -19,7 +19,7 @@ import java.util.zip.ZipFile;
 
 /**
  * Read database information and data from ZIP file.
- * <p/>
+ *
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
@@ -113,7 +113,7 @@ public class ZipImporter implements Importer
   {
     final ImportDumpExtraInformation importDumpExtraInformation = _connectorRepository.getConnectorHint(_connectorId,
             ImportDumpExtraInformation.class).getValue();
-    final Map<String, Serializable> extraInformation = new HashMap<String, Serializable>();
+    final Map<String, Serializable> extraInformation = new HashMap<>();
 
     final String prefix = ZipConstants.EXTRA_INFO + ZipConstants.PATH_SEPARATOR;
 

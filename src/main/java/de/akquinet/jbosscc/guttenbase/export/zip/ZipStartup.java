@@ -1,39 +1,31 @@
 package de.akquinet.jbosscc.guttenbase.export.zip;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-
 import de.akquinet.jbosscc.guttenbase.meta.ColumnMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.DatabaseMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.IndexMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.sql.SQLException;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Default tool to start when "executing" the JAR file. It simply displays the file structure.
- * 
+ * <p></p>
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
- * 
+ *
  * @author M. Dahm
  */
+@SuppressWarnings("RedundantThrows")
 public class ZipStartup extends JPanel {
   private static final long serialVersionUID = 1L;
 
@@ -66,11 +58,11 @@ public class ZipStartup extends JPanel {
     return databaseMetaData;
   }
 
-  private DefaultMutableTreeNode addRootNode(final DatabaseMetaData databaseMetaData) throws IOException {
+  private DefaultMutableTreeNode addRootNode(final DatabaseMetaData databaseMetaData) throws IOException, SQLException {
     final DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(ZipConstants.GUTTEN_BASE_NAME);
 
     final Properties databaseMetaDataProperties = new ZipDatabaseMetaDataWriter().writeDatabaseMetaDataEntry(databaseMetaData)
-        .getProperties();
+      .getProperties();
     addMetaDataProperties(databaseMetaDataProperties, rootNode, ZipDatabaseMetaDataWriter.TABLE_NAME);
     return rootNode;
   }
@@ -114,9 +106,9 @@ public class ZipStartup extends JPanel {
   }
 
   private void addMetaDataProperties(final Properties metaDataProperties, final DefaultMutableTreeNode rootNode,
-      final String excludedProperty) throws IOException {
+                                     final String excludedProperty) throws IOException {
     for (@SuppressWarnings("rawtypes")
-    final Enumeration keysEnum = metaDataProperties.keys(); keysEnum.hasMoreElements();) {
+         final Enumeration keysEnum = metaDataProperties.keys(); keysEnum.hasMoreElements(); ) {
       final String key = keysEnum.nextElement().toString();
       final String value = metaDataProperties.getProperty(key);
 
@@ -130,12 +122,7 @@ public class ZipStartup extends JPanel {
     final JPanel buttonPanel = new JPanel(new FlowLayout());
 
     final JButton close = new JButton("Close");
-    close.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(final ActionEvent e) {
-        System.exit(0);
-      }
-    });
+    close.addActionListener(e -> System.exit(0));
     buttonPanel.add(close);
     return buttonPanel;
   }

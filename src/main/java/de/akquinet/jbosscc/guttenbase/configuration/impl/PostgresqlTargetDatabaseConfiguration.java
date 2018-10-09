@@ -1,51 +1,29 @@
 package de.akquinet.jbosscc.guttenbase.configuration.impl;
 
+import de.akquinet.jbosscc.guttenbase.hints.TableOrderHint;
+import de.akquinet.jbosscc.guttenbase.mapping.TableMapper;
+import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
+import de.akquinet.jbosscc.guttenbase.repository.ConnectorRepository;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import de.akquinet.jbosscc.guttenbase.hints.TableNameMapperHint;
-import de.akquinet.jbosscc.guttenbase.hints.TableOrderHint;
-import de.akquinet.jbosscc.guttenbase.mapping.TableNameMapper;
-import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
-import de.akquinet.jbosscc.guttenbase.repository.ConnectorRepository;
-import de.akquinet.jbosscc.guttenbase.tools.postgresql.PostgresqlVacuumTablesTool;
-
 /**
  * Implementation for PostgreSQL data base.
- * 
+ * <p></p>
  * Running ANALYZE after insertions is recommended: http://www.postgresql.org/docs/7.4/static/populate.html
- * 
+ * <p></p>
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
- * 
- * @Uses-Hint {@link TableNameMapperHint}
+ *
  * @author M. Dahm
  */
 public class PostgresqlTargetDatabaseConfiguration extends DefaultTargetDatabaseConfiguration {
-  private final boolean _vacuumAfterCopy;
-
   public PostgresqlTargetDatabaseConfiguration(final ConnectorRepository connectorRepository) {
-    this(connectorRepository, true);
-  }
-
-  /**
-   * @param connectorRepository
-   * @param vacuumAfterCopy
-   *          "Defragment" and optimize target table after copying
-   */
-  public PostgresqlTargetDatabaseConfiguration(final ConnectorRepository connectorRepository, final boolean vacuumAfterCopy) {
     super(connectorRepository);
-    _vacuumAfterCopy = vacuumAfterCopy;
   }
 
-  @Override
-  public void afterTableCopy(final Connection connection, final String connectorId, final TableMetaData table) throws SQLException {
-    if (_vacuumAfterCopy) {
-      new PostgresqlVacuumTablesTool(_connectorRepository).executeOnTable(connectorId, false, false, table);
-    }
-  }
 
   /**
    * {@inheritDoc}
@@ -72,10 +50,10 @@ public class PostgresqlTargetDatabaseConfiguration extends DefaultTargetDatabase
   }
 
   private void setReferentialIntegrity(final Connection connection, final String connectorId, final List<TableMetaData> tableMetaDatas,
-      final boolean enable) throws SQLException {
+                                       final boolean enable) throws SQLException {
     for (final TableMetaData tableMetaData : tableMetaDatas) {
-      final TableNameMapper tableNameMapper = _connectorRepository.getConnectorHint(connectorId, TableNameMapper.class).getValue();
-      final String tableName = tableNameMapper.mapTableName(tableMetaData);
+      final TableMapper tableNameMapper = _connectorRepository.getConnectorHint(connectorId, TableMapper.class).getValue();
+      final String tableName = tableNameMapper.fullyQualifiedTableName(tableMetaData, tableMetaData.getDatabaseMetaData());
       executeSQL(connection, "ALTER TABLE " + tableName + (enable ? " ENABLE " : " DISABLE ") + "TRIGGER ALL;");
     }
   }

@@ -8,4 +8,7 @@
 *.ear
 .DS_Store/
 .svn/
+.idea/
 target/
+/.idea
+/GuttenBase.iml

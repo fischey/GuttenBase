@@ -8,18 +8,25 @@ import java.util.List;
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
- * 
+ *
  * @author M. Dahm
  */
 public interface TableMetaData extends Comparable<TableMetaData>, Serializable
 {
-  int getRowCount();
+  int getFilteredRowCount();
+
+  int getTotalRowCount();
 
   List<ColumnMetaData> getColumnMetaData();
 
   ColumnMetaData getColumnMetaData(String columnName);
 
   int getColumnCount();
+
+  /**
+   * @return type such as "TABLE" or "VIEW"
+   */
+  String getTableType();
 
   String getTableName();
 
@@ -34,7 +41,7 @@ public interface TableMetaData extends Comparable<TableMetaData>, Serializable
 
   List<IndexMetaData> getIndexes();
 
-  List<IndexMetaData> getIndexesForColumn(ColumnMetaData columnMetaData);
+  List<IndexMetaData> getIndexesContainingColumn(ColumnMetaData columnMetaData);
 
   List<ForeignKeyMetaData> getImportedForeignKeys();
 

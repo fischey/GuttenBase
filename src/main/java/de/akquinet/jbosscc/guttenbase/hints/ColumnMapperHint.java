@@ -3,7 +3,6 @@ package de.akquinet.jbosscc.guttenbase.hints;
 import de.akquinet.jbosscc.guttenbase.mapping.ColumnMapper;
 import de.akquinet.jbosscc.guttenbase.statements.AbstractStatementCreator;
 import de.akquinet.jbosscc.guttenbase.tools.AbstractTableCopyTool;
-import de.akquinet.jbosscc.guttenbase.tools.CheckSchemaCompatibilityTool;
 import de.akquinet.jbosscc.guttenbase.tools.CheckEqualTableDataTool;
 
 /**
@@ -16,14 +15,15 @@ import de.akquinet.jbosscc.guttenbase.tools.CheckEqualTableDataTool;
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
  *
- * @Applicable-For-Target
- * @Hint-Used-By {@link CheckEqualTableDataTool} to map columns
- * @Hint-Used-By {@link CheckSchemaCompatibilityTool} to map columns
- * @Hint-Used-By {@link AbstractTableCopyTool} to map columns
- * @Hint-Used-By {@link AbstractStatementCreator} to map columns
+ *
+ * Hint is used by {@link CheckEqualTableDataTool} to map columns
+ * Hint is used by {@link de.akquinet.jbosscc.guttenbase.tools.schema.comparison.SchemaComparatorTool} to map columns
+ * Hint is used by {@link AbstractTableCopyTool} to map columns
+ * Hint is used by {@link AbstractStatementCreator} to map columns
  *
  * @author M. Dahm
  */
+@SuppressWarnings("deprecation")
 public abstract class ColumnMapperHint implements ConnectorHint<ColumnMapper> {
 	@Override
 	public Class<ColumnMapper> getConnectorHintType() {

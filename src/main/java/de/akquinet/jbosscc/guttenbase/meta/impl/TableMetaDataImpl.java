@@ -1,23 +1,23 @@
 package de.akquinet.jbosscc.guttenbase.meta.impl;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import de.akquinet.jbosscc.guttenbase.meta.ColumnMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.DatabaseMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.ForeignKeyMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.IndexMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.InternalTableMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Information about a table.
  * <p>
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
- * 
+ *
  * @author M. Dahm
  */
 public class TableMetaDataImpl implements InternalTableMetaData
@@ -25,18 +25,23 @@ public class TableMetaDataImpl implements InternalTableMetaData
   private static final long serialVersionUID = 1L;
 
   private final String _tableName;
-  private int _rowCount;
-  private final Map<String, ColumnMetaData> _columns = new LinkedHashMap<String, ColumnMetaData>();
-  private final Map<String, IndexMetaData> _indexes = new LinkedHashMap<String, IndexMetaData>();
-  private final Map<String, ForeignKeyMetaData> _importedForeignKeys = new LinkedHashMap<String, ForeignKeyMetaData>();
-  private final Map<String, ForeignKeyMetaData> _exportedForeignKeys = new LinkedHashMap<String, ForeignKeyMetaData>();
+  private final String _tableType;
+  private int _totalRowCount;
+  private int _filteredRowCount;
+  private final Map<String, ColumnMetaData> _columns = new LinkedHashMap<>();
+  private final Map<String, IndexMetaData> _indexes = new LinkedHashMap<>();
+  private final Map<String, ForeignKeyMetaData> _importedForeignKeys = new LinkedHashMap<>();
+  private final Map<String, ForeignKeyMetaData> _exportedForeignKeys = new LinkedHashMap<>();
   private final DatabaseMetaData _databaseMetaData;
 
-  public TableMetaDataImpl(final String tableName, final DatabaseMetaData databaseMetaData)
+  public TableMetaDataImpl(final String tableName, final DatabaseMetaData databaseMetaData, final String tableType)
   {
     assert tableName != null : "tableName != null";
     assert databaseMetaData != null : "databaseMetaData != null";
+    assert tableType != null : "tableType != null";
+
     _tableName = tableName;
+    _tableType = tableType;
     _databaseMetaData = databaseMetaData;
   }
 
@@ -44,18 +49,34 @@ public class TableMetaDataImpl implements InternalTableMetaData
    * {@inheritDoc}
    */
   @Override
-  public int getRowCount()
-  {
-    return _rowCount;
+  public int getFilteredRowCount() {
+    return _filteredRowCount;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void setRowCount(final int rowCount)
+  public void setFilteredRowCount(final int filteredRowCount) {
+    _filteredRowCount = filteredRowCount;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getTotalRowCount()
   {
-    _rowCount = rowCount;
+    return _totalRowCount;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setTotalRowCount(final int rowCount)
+  {
+    _totalRowCount = rowCount;
   }
 
   /**
@@ -64,7 +85,7 @@ public class TableMetaDataImpl implements InternalTableMetaData
   @Override
   public List<ColumnMetaData> getColumnMetaData()
   {
-    return new ArrayList<ColumnMetaData>(_columns.values());
+    return new ArrayList<>(_columns.values());
   }
 
   /**
@@ -115,7 +136,7 @@ public class TableMetaDataImpl implements InternalTableMetaData
   @Override
   public List<IndexMetaData> getIndexes()
   {
-    return new ArrayList<IndexMetaData>(_indexes.values());
+    return new ArrayList<>(_indexes.values());
   }
 
   @Override
@@ -127,7 +148,7 @@ public class TableMetaDataImpl implements InternalTableMetaData
   @Override
   public List<ForeignKeyMetaData> getExportedForeignKeys()
   {
-    return new ArrayList<ForeignKeyMetaData>(_exportedForeignKeys.values());
+    return new ArrayList<>(_exportedForeignKeys.values());
   }
 
   @Override
@@ -139,7 +160,7 @@ public class TableMetaDataImpl implements InternalTableMetaData
   @Override
   public List<ForeignKeyMetaData> getImportedForeignKeys()
   {
-    return new ArrayList<ForeignKeyMetaData>(_importedForeignKeys.values());
+    return new ArrayList<>(_importedForeignKeys.values());
   }
 
   @Override
@@ -154,33 +175,19 @@ public class TableMetaDataImpl implements InternalTableMetaData
   @Override
   public List<ColumnMetaData> getPrimaryKeyColumns()
   {
-    final List<ColumnMetaData> result = new ArrayList<ColumnMetaData>();
 
-    for (final ColumnMetaData columnMetaData : getColumnMetaData())
-    {
-      if (columnMetaData.isPrimaryKey())
-      {
-        result.add(columnMetaData);
-      }
-    }
-
-    return result;
+    return getColumnMetaData().stream().filter(ColumnMetaData::isPrimaryKey).collect(Collectors.toList());
   }
 
   @Override
-  public List<IndexMetaData> getIndexesForColumn(final ColumnMetaData columnMetaData)
+  public List<IndexMetaData> getIndexesContainingColumn(final ColumnMetaData columnMetaData)
   {
-    final List<IndexMetaData> result = new ArrayList<IndexMetaData>();
+    final List<IndexMetaData> result = new ArrayList<>();
 
     for (final IndexMetaData index : getIndexes())
     {
-      for (final ColumnMetaData column : index.getColumnMetaData())
-      {
-        if (column.equals(columnMetaData))
-        {
-          result.add(index);
-        }
-      }
+      result.addAll(index.getColumnMetaData().stream().filter(column -> column.equals(columnMetaData))
+        .map(column -> index).collect(Collectors.toList()));
     }
 
     return result;
@@ -193,6 +200,14 @@ public class TableMetaDataImpl implements InternalTableMetaData
   public String getTableName()
   {
     return _tableName;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getTableType() {
+    return _tableType;
   }
 
   /**

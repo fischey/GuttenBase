@@ -1,17 +1,15 @@
 package de.akquinet.jbosscc.guttenbase.hints;
 
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import de.akquinet.jbosscc.guttenbase.mapping.TableOrderComparatorFactory;
 import de.akquinet.jbosscc.guttenbase.meta.DatabaseMetaData;
 import de.akquinet.jbosscc.guttenbase.meta.TableMetaData;
 import de.akquinet.jbosscc.guttenbase.repository.ConnectorRepository;
 import de.akquinet.jbosscc.guttenbase.tools.AbstractTableCopyTool;
 import de.akquinet.jbosscc.guttenbase.tools.CheckEqualTableDataTool;
-import de.akquinet.jbosscc.guttenbase.tools.CheckSchemaCompatibilityTool;
+import de.akquinet.jbosscc.guttenbase.tools.schema.comparison.SchemaComparatorTool;
+import java.sql.SQLException;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Determine order of tables during copying/comparison.
@@ -19,12 +17,13 @@ import de.akquinet.jbosscc.guttenbase.tools.CheckSchemaCompatibilityTool;
  * &copy; 2012-2020 akquinet tech@spree
  * </p>
  *
- * @Applicable-For-Source
- * @Hint-Used-By {@link CheckSchemaCompatibilityTool} to determine table order
- * @Hint-Used-By {@link AbstractTableCopyTool} to determine table order
- * @Hint-Used-By {@link CheckEqualTableDataTool} to determine table order
+ *
+ * Hint is used by {@link SchemaComparatorTool} to determine table order
+ * Hint is used by {@link AbstractTableCopyTool} to determine table order
+ * Hint is used by {@link CheckEqualTableDataTool} to determine table order
  * @author M. Dahm
  */
+@SuppressWarnings("deprecation")
 public abstract class TableOrderHint implements ConnectorHint<TableOrderComparatorFactory>
 {
   @Override
@@ -43,7 +42,7 @@ public abstract class TableOrderHint implements ConnectorHint<TableOrderComparat
     final Comparator<TableMetaData> comparator = connectorRepository
         .getConnectorHint(connectorId, TableOrderComparatorFactory.class).getValue().createComparator();
     final List<TableMetaData> tables = databaseMetaData.getTableMetaData();
-    Collections.sort(tables, comparator);
+    tables.sort(comparator);
 
     return tables;
   }
